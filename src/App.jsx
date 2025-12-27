@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Toaster  } from 'react-hot-toast';
-import SearchBar from './Components/SearchBar/SearchBar';
-import ImageGallery from './Components/ImageGallery/ImageGallery';
-import Loader from './Components/Loader/Loader';
-import ErrorMessage from './Components/ErrorMessage/ErrorMessage';
-import LoadMoreBtn from './Components/LoadMoreBtn/LoadMoreBtn';
-import ImageModal from './Components/ImageModal/ImageModal';
+import SearchBar from './components/SearchBar/SearchBar';
+import ImageGallery from './components/ImageGallery/ImageGallery';
+import Loader from './components/Loader/Loader';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage';
+import LoadMoreBtn from './components/LoadMoreBtn/LoadMoreBtn';
+import ImageModal from './components/ImageModal/ImageModal';
 import './App.css';
 
 const App = () => {
