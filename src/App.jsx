@@ -18,6 +18,8 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  console.log("Unsplash Key:", import.meta.env.VITE_UNSPLASH_ACCESS_KEY);
+  
   const fetchImages = async (searchQuery, pageNum) => {
     setLoading(true);
     setError(null);
