@@ -1,35 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Toaster  } from 'react-hot-toast';
+import SearchBar from './Components/SearchBar/SearchBar';
+import ImageGallery from './Components/ImageGallery/ImageGallery';
+import Loader from './Components/Loader/Loader';
+import ErrorMessage from './Components/ErrorMessage/ErrorMessage';
+import LoadMoreBtn from './Components/LoadMoreBtn/LoadMoreBtn';
+import ImageModal from './Components/ImageModal/ImageModal';
+import './App.css';
+
+const App = () => {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const fetchImages = async (searchQuery, pageNum) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`https://api.unsplash.com/search/photos`, {
+        params: {
+          query: searchQuery,
+          page: pageNum,
+          per_page: 12,
+          client_id: import.meta.env.VITE_UNSPLASH_ACCESS_KEY,
+        },
+      });
+      setImages((prevImages) => [...prevImages, ...response.data.results]);
+    } catch {
+      setError('Error fetching images');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = (searchQuery) => {
+    setImages([]);
+    setPage(1);
+    setQuery(searchQuery);
+  };
+
+  const loadMoreImages = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchImages(query, nextPage);
+  };
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+  };
+
+  useEffect(() => {
+    if (query) fetchImages(query, 1);
+  }, [query]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="App">
+      <Toaster />
+      <SearchBar onSubmit={handleSearchSubmit} />
 
-export default App
+      {loading && <Loader />}
+
+      {error && <ErrorMessage message={error} />}
+
+      {!loading && !error && images.length === 0 && query && (
+        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '18px', color: '#555' }}>
+          За запитом "{query}" зображень не знайдено.
+        </p>
+      )}
+
+      {images.length > 0 && (
+        <>
+          <ImageGallery images={images} onImageClick={handleImageClick} />
+          {!loading && <LoadMoreBtn onClick={loadMoreImages} />}
+        </>
+      )}
+
+      {selectedImage && (
+        <ImageModal
+          isOpen={!!selectedImage}
+          onRequestClose={() => setSelectedImage(null)}
+          image={selectedImage}
+        />
+      )}
+    </div>
+  );
+};
+
+export default App;
